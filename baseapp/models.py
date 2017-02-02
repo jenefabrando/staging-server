@@ -10,54 +10,47 @@ import caching.base  # cache data
 from django.core.validators import MaxValueValidator, MinValueValidator
 from smart_selects.db_fields import ChainedForeignKey
 
-"""
-Model for Aeeo
-"""
-class Aeeo(models.Model):
-    block_code=models.PositiveIntegerField()
-    username=models.CharField(max_length=11)
-    emis_blocks=models.CharField(max_length=22)
-    emis_district=models.CharField(max_length=15)
-    block_id=models.ForeignKey('Block')
-    district_id=models.ForeignKey('District')
 
+"""
+Model for Bank District
+"""
+
+class Bank_districtnew(models.Model):
+    district_code = models.PositiveIntegerField(
+        unique=True, validators=[MinValueValidator(3300), MaxValueValidator(3399)])
+    bank_dist = models.CharField(max_length=100)
     def __unicode__(self):
-        return u'%s' % (self.username)
-
+        return u'%s' % (self.bank_dist)
 
 """
-Model for Teacher App Staff_Category
+Model for Bank Master
 """
-
-
-class Staff_Category(models.Model):
-    staff_category_code = models.CharField(max_length=100)
-    staff_category_name = models.CharField(max_length=100)
-
+class Banknew(caching.base.CachingMixin, models.Model):
+    bank_dist=models.ForeignKey(Bank_districtnew)
+    bankcode = models.CharField(max_length=4)
+    bank = models.CharField(max_length=200)
+    objects = caching.base.CachingManager()
     def __unicode__(self):
-        return u'%s' % (self. staff_category_name)
+        return u'%s' % (self.bank)
+
 """
-Model for Designation
+Model for Bank Branch Master
 """
 
-
-class Designation(models.Model):
-    designation_code = models.CharField(max_length=10)
-    designation_name = models.CharField(max_length=1000)
-    stafs = models.ForeignKey('Staff_Category')
-
+class Branchnew(caching.base.CachingMixin, models.Model):
+    bank = models.ForeignKey(Banknew)
+    bank_name= models.CharField(max_length=200)
+    branch = models.CharField(max_length=200)
+    branch_add=models.CharField(max_length=300)
+    contact_no=models.CharField(max_length=20,blank=True,null=True)
+    city=models.CharField(max_length=50,blank=True,null=True)
+    ifsc_code= models.CharField(max_length=30)
+    micr_code=models.CharField(max_length=30)
+    objects = caching.base.CachingManager()
     def __unicode__(self):
-        return u'%s%s' % (self.designation_name,self.stafs)
+        return u'%s%s%s' % (self.branch,", IFSC:",self.ifsc_code)  
 
 
-
-class Subject(models.Model):
-    subject_code = models.CharField(max_length=10)
-    subject_name = models.CharField(max_length=1000)
-    designation = models.ForeignKey('Designation')
-
-    def __unicode__(self):
-        return u'%s' % (self.subject_name)
 
 """
 Model for Assembly constituencies
@@ -242,18 +235,18 @@ class Revenue_block(models.Model):
     def __unicode__(self):
         return u'%s' % (self.revenue_block)
 
+
 """
 Model for Community
 """
 
 
 class Community(models.Model):
-   community_code = models.CharField(max_length=100)
-   community_name = models.CharField(max_length=100)
-   religion = models.ForeignKey('Religion')
-
-   def __unicode__(self):
-       return u'%s' % (self.community_name)
+    community_code = models.CharField(max_length=100)
+    community_name = models.CharField(max_length=100)
+    religion = models.ForeignKey('Religion')
+    def __unicode__(self):
+        return u'%s' % (self.community_name)
 
 """
 Model for Sub Castes
@@ -261,26 +254,24 @@ Model for Sub Castes
 
 
 class Sub_Castes(models.Model):
-   caste_code = models.CharField(max_length=10)
-   caste_name = models.CharField(max_length=1000)
-   community = models.ForeignKey('Community')
+    caste_code = models.CharField(max_length=10)
+    caste_name = models.CharField(max_length=1000)
+    community = models.ForeignKey('Community')
 
-   def __unicode__(self):
-       return u'%s %s %s' % (self.caste_name,self.caste_code, self.community.community_name)
+    def __unicode__(self):
+        return u'%s %s %s' % (self.caste_name,self.caste_code, self.community.community_name)
+
 
 """
 Model for Religion
 """
 
+
 class Religion(models.Model):
-   religion_name = models.CharField(max_length=100)
+    religion_name = models.CharField(max_length=100)
 
-   def __unicode__(self):
-       return u'%s' % (self.religion_name)
-
-
-
-
+    def __unicode__(self):
+        return u'%s' % (self.religion_name)
 
 """
 Model for Language
@@ -387,6 +378,16 @@ class Group_code(models.Model):
 
     def __unicode__(self):
         return u'%s %s %s' % (self.group_code, self.group_name, self.group_description)
+
+
+class Group_code_cbse(models.Model):
+    group_code = models.PositiveIntegerField()
+    group_name = models.CharField(max_length=100)
+    
+
+    def __unicode__(self):
+        return u'%s %s' % (self.group_code, self.group_name)
+
 
 """
 Model for Education Medium
